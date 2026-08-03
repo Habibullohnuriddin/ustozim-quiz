@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<title>Ustozim Nurim — Kunlik bilim sinovi</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --card2:#20242d; --line:#2a2f3a;
+    --text:#eef1f6; --muted:#98a1b3;
+    --gold:#d9a441; --gold-2:#f0c674;
+    --ok:#2ea86a; --ok-bg:rgba(46,168,106,.14);
+    --no:#e05260; --no-bg:rgba(224,82,96,.14);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; padding:16px 14px 40px;
+    max-width:620px; margin:0 auto;
+    min-height:100vh;
+  }
+  .brand{display:flex;align-items:center;gap:9px;justify-content:center;margin-bottom:18px}
+  .brand .mark{
+    width:30px;height:30px;border-radius:9px;flex:none;
+    background:linear-gradient(135deg,var(--gold-2),var(--gold));
+    display:grid;place-items:center;color:#1a1200;font-weight:800;font-size:15px;
+  }
+  .brand span{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+
+  /* — boshlanish ekrani — */
+  h1{font-size:22px;margin:0 0 6px;letter-spacing:-.01em}
+  .date{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .rows{display:grid;gap:10px;margin:18px 0}
+  .row{display:flex;align-items:center;gap:12px;background:var(--card2);border-radius:12px;padding:12px 14px}
+  .row .ico{font-size:20px;flex:none}
+  .row .t{flex:1;font-size:15px}
+  .row .n{font-weight:700;color:var(--gold-2);font-size:15px}
+  .note{color:var(--muted);font-size:13px;margin-top:14px;text-align:center}
+
+  .btn{
+    display:block;width:100%;border:0;border-radius:13px;padding:16px;
+    font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;
+    background:linear-gradient(135deg,var(--gold-2),var(--gold));color:#1a1200;
+    transition:transform .08s ease, opacity .15s ease; margin-top:6px;
+  }
+  .btn:active{transform:scale(.985)}
+  .btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+
+  /* — savol ekrani — */
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:13px;color:var(--muted)}
+  .chip{background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:600}
+  .chip.it{color:#7fb6ff} .chip.ld{color:var(--gold-2)}
+  .track{height:5px;background:var(--card2);border-radius:99px;overflow:hidden;margin-bottom:18px}
+  .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0;transition:width .35s ease}
+  .q{font-size:18px;font-weight:600;margin:0 0 18px;letter-spacing:-.01em}
+
+  .opts{display:grid;gap:9px}
+  .opt{
+    display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    background:var(--card2);border:1.5px solid var(--line);border-radius:13px;
+    padding:14px 15px;font-size:15px;color:var(--text);cursor:pointer;
+    font-family:inherit;line-height:1.4;transition:border-color .15s, background .15s, transform .08s;
+  }
+  .opt:active{transform:scale(.99)}
+  .opt .k{
+    width:25px;height:25px;border-radius:7px;flex:none;display:grid;place-items:center;
+    background:var(--line);font-size:12px;font-weight:700;color:var(--muted);
+  }
+  .opt.ok{border-color:var(--ok);background:var(--ok-bg)}
+  .opt.ok .k{background:var(--ok);color:#fff}
+  .opt.no{border-color:var(--no);background:var(--no-bg)}
+  .opt.no .k{background:var(--no);color:#fff}
+  .opt.dim{opacity:.45}
+  .opt[disabled]{cursor:default}
+
+  .verdict{margin-top:16px;padding:13px 15px;border-radius:12px;font-size:14.5px;font-weight:600;display:none}
+  .verdict.ok{display:block;background:var(--ok-bg);color:#7ee0a8}
+  .verdict.no{display:block;background:var(--no-bg);color:#ff9aa4}
+
+  /* — natija ekrani — */
+  .score{text-align:center;padding:6px 0 4px}
+  .score .big{font-size:52px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+  .score .of{color:var(--muted);font-size:16px;margin-top:2px}
+  .ring{position:relative;width:132px;height:132px;margin:8px auto 14px}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pc{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;font-weight:800}
+  .msg{text-align:center;font-size:15.5px;margin:6px 0 18px;color:var(--text)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+  .stat{background:var(--card2);border-radius:12px;padding:12px;text-align:center}
+  .stat .v{font-size:19px;font-weight:700}
+  .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .review{margin-top:20px}
+  .review h3{font-size:14px;color:var(--muted);font-weight:600;margin:0 0 10px;text-transform:uppercase;letter-spacing:.06em}
+  .ritem{background:var(--card2);border-radius:11px;padding:11px 13px;margin-bottom:8px;font-size:14px}
+  .ritem .rq{font-weight:600;margin-bottom:5px}
+  .ritem .ra{color:#7ee0a8;font-size:13.5px}
+  .ritem .rw{color:#ff9aa4;font-size:13.5px;text-decoration:line-through;opacity:.8}
+  .hide{display:none}
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <div class="mark">N</div><span>Ustozim Nurim</span>
+</div>
+
+<!-- BOSHLANISH -->
+<section id="s-intro" class="card">
+  <h1>Kunlik bilim sinovi</h1>
+  <div class="date" id="today"></div>
+  <div class="rows">
+    <div class="row"><div class="ico">💻</div><div class="t">IT va dasturlash</div><div class="n" id="n-it">—</div></div>
+    <div class="row"><div class="ico">🌟</div><div class="t">Fazilatli liderlik</div><div class="n" id="n-ld">—</div></div>
+  </div>
+  <button class="btn" id="go">Boshlash</button>
+  <div class="note" id="note"></div>
+</section>
+
+<!-- SAVOL -->
+<section id="s-quiz" class="card hide">
+  <div class="top">
+    <span id="counter">1 / 7</span>
+    <span class="chip" id="topic">IT</span>
+  </div>
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <p class="q" id="qtext"></p>
+  <div class="opts" id="opts"></div>
+  <div class="verdict" id="verdict"></div>
+  <button class="btn hide" id="next">Keyingi savol</button>
+</section>
+
+<!-- NATIJA -->
+<section id="s-done" class="card hide">
+  <div class="score">
+    <div class="ring">
+      <svg width="132" height="132">
+        <circle cx="66" cy="66" r="58" fill="none" stroke="#20242d" stroke-width="11"/>
+        <circle id="arc" cx="66" cy="66" r="58" fill="none" stroke="url(#g)" stroke-width="11"
+                stroke-linecap="round" stroke-dasharray="364" stroke-dashoffset="364"
+                style="transition:stroke-dashoffset 1s ease"/>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#f0c674"/><stop offset="1" stop-color="#d9a441"/>
+        </linearGradient></defs>
+      </svg>
+      <div class="pc" id="pc">0%</div>
+    </div>
+    <div class="big" id="fscore">0</div>
+    <div class="of" id="fof">0 tadan</div>
+  </div>
+  <div class="msg" id="fmsg"></div>
+  <div class="stats">
+    <div class="stat"><div class="v" id="st-ok">0</div><div class="l">To'g'ri</div></div>
+    <div class="stat"><div class="v" id="st-no">0</div><div class="l">Xato</div></div>
+  </div>
+  <button class="btn" id="share">📤 Natijani ulashish</button>
+  <button class="btn ghost" id="review-btn" style="margin-top:9px">📋 Xatolarni ko'rish</button>
+  <div class="review hide" id="review">
+    <h3>Xato javoblar</h3>
+    <div id="rlist"></div>
+  </div>
+  <div class="note">Ertaga soat 20:00 da yangi savollar 🌙</div>
+</section>
+
+<script src="bank.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  // ——— Telegram Mini App integratsiyasi (bo'lmasa ham ishlaydi) ———
+  var tgApp = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  if (tgApp) { try { tgApp.ready(); tgApp.expand(); } catch(e){} }
+  function haptic(type){
+    try { if (tgApp && tgApp.HapticFeedback) tgApp.HapticFeedback.notificationOccurred(type); } catch(e){}
+  }
+
+  // ——— Sozlamalar (post_daily_announcement.py bilan bir xil bo'lishi SHART) ———
+  var START_DATE_UTC = Date.UTC(2026, 7, 4);   // 2026-08-04
+  var WEEKLY_COUNTS  = [7, 9, 11, 13, 15];
+  var IT_SHARE       = 2/3;
+  var GROUP_URL      = "https://t.me/ustozimnurimco";
+
+  var WD = ["Yakshanba","Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
+  var MO = ["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentabr","oktabr","noyabr","dekabr"];
+
+  function utcMidnight(d){ return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); }
+  function dayIndex(){
+    var d = Math.floor((utcMidnight(new Date()) - START_DATE_UTC) / 86400000);
+    return d < 0 ? 0 : d;
+  }
+  function weekCount(day){ return WEEKLY_COUNTS[Math.min(Math.floor(day/7), WEEKLY_COUNTS.length-1)]; }
+  function itPerDay(day){ return Math.round(weekCount(day) * IT_SHARE); }
+  function ldPerDay(day){ return weekCount(day) - itPerDay(day); }
+
+  function pickToday(){
+    var bank = window.BANK || [];
+    var it = bank.filter(function(q){ return q.t === "IT"; });
+    var ld = bank.filter(function(q){ return q.t === "Liderlik"; });
+    var day = dayIndex();
+
+    function cumulative(fn){ var s=0; for (var d=0; d<day; d++) s += fn(d); return s; }
+    function take(arr, start, n){
+      var out=[]; if(!arr.length) return out;
+      for (var i=0;i<n;i++) out.push(arr[(start+i) % arr.length]);
+      return out;
+    }
+    var itQ = take(it, it.length ? cumulative(itPerDay) % it.length : 0, itPerDay(day));
+    var ldQ = take(ld, ld.length ? cumulative(ldPerDay) % ld.length : 0, ldPerDay(day));
+
+    // IT va liderlik savollarini aralashtiramiz (bir xil tartibda — sanaga bog'liq)
+    var all = itQ.concat(ldQ);
+    var seed = day * 2654435761 % 4294967296;
+    function rnd(){ seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+    for (var i = all.length - 1; i > 0; i--) {
+      var j = Math.floor(rnd() * (i + 1));
+      var t = all[i]; all[i] = all[j]; all[j] = t;
+    }
+    return all;
+  }
+
+  // ——— Holat ———
+  var questions = pickToday();
+  var day = dayIndex();
+  var idx = 0, score = 0, locked = false;
+  var wrong = [];
+  var storeKey = "un_quiz_" + new Date().toISOString().slice(0,10);
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ——— Boshlanish ekrani ———
+  (function initIntro(){
+    var now = new Date();
+    $("today").textContent = now.getDate() + "-" + MO[now.getMonth()] + ", " + WD[now.getDay()];
+    $("n-it").textContent = itPerDay(day) + " ta";
+    $("n-ld").textContent = ldPerDay(day) + " ta";
+
+    var nextIdx = Math.min(Math.floor(day/7) + 1, WEEKLY_COUNTS.length - 1);
+    var nextCount = WEEKLY_COUNTS[nextIdx];
+    var cur = weekCount(day);
+    var note = "Jami " + cur + " ta savol · taxminan " + Math.max(2, Math.round(cur/2)) + "–" + cur + " daqiqa";
+    if (nextCount > cur) {
+      note += "<br>📈 " + (7 - (day % 7)) + " kundan keyin " + nextCount + " taga oshadi";
+    }
+    $("note").innerHTML = note;
+
+    // Bugun allaqachon ishlaganmi?
+    try {
+      var saved = localStorage.getItem(storeKey);
+      if (saved) {
+        var s = JSON.parse(saved);
+        $("go").textContent = "Qaytadan ishlash";
+        $("note").innerHTML = "✅ Bugun ishlagansiz: <b>" + s.score + " / " + s.total + "</b><br>" + note;
+      }
+    } catch(e){}
+  })();
+
+  $("go").addEventListener("click", function(){
+    if (!questions.length) { alert("Savollar yuklanmadi. Sahifani yangilang."); return; }
+    $("s-intro").classList.add("hide");
+    $("s-quiz").classList.remove("hide");
+    render();
+  });
+
+  // ——— Savol ekrani ———
+  var KEYS = ["A","B","C","D","E","F","G","H","I","J"];
+
+  function render(){
+    locked = false;
+    var q = questions[idx];
+    $("counter").textContent = (idx+1) + " / " + questions.length;
+    var chip = $("topic");
+    chip.textContent = q.t === "IT" ? "💻 IT" : "🌟 Liderlik";
+    chip.className = "chip " + (q.t === "IT" ? "it" : "ld");
+    $("fill").style.width = (idx / questions.length * 100) + "%";
+    $("qtext").textContent = q.q;
+    $("verdict").className = "verdict";
+    $("next").classList.add("hide");
+
+    var box = $("opts");
+    box.innerHTML = "";
+    q.o.forEach(function(text, i){
+      var b = document.createElement("button");
+      b.className = "opt";
+      b.innerHTML = '<span class="k">' + KEYS[i] + '</span><span>' + escapeHtml(text) + '</span>';
+      b.addEventListener("click", function(){ answer(i, b); });
+      box.appendChild(b);
+    });
+  }
+
+  function answer(choice, btn){
+    if (locked) return;
+    locked = true;
+    var q = questions[idx];
+    var right = choice === q.c;
+    var nodes = $("opts").children;
+
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].setAttribute("disabled", "true");
+      if (i === q.c) nodes[i].classList.add("ok");
+      else if (i === choice) nodes[i].classList.add("no");
+      else nodes[i].classList.add("dim");
+    }
+
+    var v = $("verdict");
+    if (right) {
+      score++;
+      v.className = "verdict ok";
+      v.textContent = "✅ To'g'ri!";
+      haptic("success");
+    } else {
+      wrong.push({ q: q.q, right: q.o[q.c], chosen: q.o[choice] });
+      v.className = "verdict no";
+      v.textContent = "❌ To'g'ri javob: " + q.o[q.c];
+      haptic("error");
+    }
+
+    $("fill").style.width = ((idx+1) / questions.length * 100) + "%";
+    var nx = $("next");
+    nx.textContent = (idx === questions.length - 1) ? "Natijani ko'rish" : "Keyingi savol";
+    nx.classList.remove("hide");
+  }
+
+  $("next").addEventListener("click", function(){
+    idx++;
+    if (idx >= questions.length) finish();
+    else render();
+  });
+
+  // ——— Natija ekrani ———
+  function finish(){
+    $("s-quiz").classList.add("hide");
+    $("s-done").classList.remove("hide");
+
+    var total = questions.length;
+    var pct = Math.round(score / total * 100);
+
+    $("fscore").textContent = score;
+    $("fof").textContent = total + " tadan";
+    $("st-ok").textContent = score;
+    $("st-no").textContent = total - score;
+
+    var msg;
+    if (pct === 100)      msg = "🏆 Mukammal! Barcha savollar to'g'ri.";
+    else if (pct >= 80)   msg = "🌟 Ajoyib natija! Shu zayilda davom eting.";
+    else if (pct >= 60)   msg = "👍 Yaxshi. Yana bir oz mashq — zo'r bo'ladi.";
+    else if (pct >= 40)   msg = "💪 Yomon emas. Har kuni ishlasangiz, natija tez o'sadi.";
+    else                  msg = "📚 Bugun qiyin bo'ldi. Muhimi — urinib ko'rdingiz!";
+    $("fmsg").textContent = msg;
+
+    setTimeout(function(){
+      $("arc").style.strokeDashoffset = String(364 - 364 * pct / 100);
+      $("pc").textContent = pct + "%";
+    }, 120);
+
+    try { localStorage.setItem(storeKey, JSON.stringify({ score: score, total: total })); } catch(e){}
+
+    if (wrong.length) {
+      var list = $("rlist");
+      list.innerHTML = "";
+      wrong.forEach(function(w){
+        var d = document.createElement("div");
+        d.className = "ritem";
+        d.innerHTML = '<div class="rq">' + escapeHtml(w.q) + '</div>' +
+                      '<div class="rw">' + escapeHtml(w.chosen) + '</div>' +
+                      '<div class="ra">✅ ' + escapeHtml(w.right) + '</div>';
+        list.appendChild(d);
+      });
+    } else {
+      $("review-btn").classList.add("hide");
+    }
+
+    $("share").addEventListener("click", function(){
+      var text = "🧠 Ustozim Nurim — kunlik bilim sinovi\nNatijam: " + score + "/" + total + " (" + pct + "%)";
+      var url = "https://t.me/share/url?url=" + encodeURIComponent(location.href.split("#")[0]) +
+                "&text=" + encodeURIComponent(text);
+      if (tgApp && tgApp.openTelegramLink) tgApp.openTelegramLink(url);
+      else window.open(url, "_blank");
+    });
+
+    $("review-btn").addEventListener("click", function(){
+      var r = $("review");
+      var open = !r.classList.contains("hide");
+      r.classList.toggle("hide");
+      $("review-btn").textContent = open ? "📋 Xatolarni ko'rish" : "📋 Yashirish";
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"]/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c];
+    });
+  }
+})();
+</script>
+</body>
+</html>
