@@ -24,7 +24,7 @@ from datetime import date
 API = "https://api.telegram.org/bot{token}/{method}"
 
 # ——— Sozlamalar (index.html dagi qiymatlar bilan BIR XIL bo'lishi shart) ———
-START_DATE = date(2026, 8, 4)
+START_DATE = date(2026, 8, 3)
 WEEKLY_COUNTS = [7, 9, 11, 13, 15]   # 1-, 2-, 3-, 4-hafta va undan keyin
 IT_SHARE = 2 / 3
 
