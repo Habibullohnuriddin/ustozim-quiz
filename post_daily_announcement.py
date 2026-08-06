@@ -79,7 +79,7 @@ def build_text(today):
         f"Bugun sizni <b>{total} ta savol</b> kutmoqda:\n\n"
         f"💻 IT va dasturlash — <b>{it_count} ta</b>\n"
         f"🌟 Fazilatli liderlik — <b>{ld_count} ta</b>\n\n"
-        f"⏱ Taxminan {max(2, round(total / 2))}–{total} daqiqa.\n"
+        f"📱 Savollar Telegram ichida keladi.\n⏱ Taxminan {max(2, round(total / 2))}–{total} daqiqa.\n"
         f"📊 Natijangiz darhol ko'rsatiladi.\n"
         f"{growth}\n"
         f"Tugmani bosing va boshlang 👇"
