@@ -25,8 +25,16 @@ API = "https://api.telegram.org/bot{token}/{method}"
 
 # ——— Sozlamalar (index.html dagi qiymatlar bilan BIR XIL bo'lishi shart) ———
 START_DATE = date(2026, 8, 3)
-WEEKLY_COUNTS = [7, 9, 11, 13, 15]   # 1-, 2-, 3-, 4-hafta va undan keyin
-IT_SHARE = 2 / 3
+WEEK_PLAN = [
+    {"IT": 3, "Liderlik": 1, "Diniy": 1, "Kino": 1, "Mantiq": 1},   # 1-hafta = 7
+    {"IT": 3, "Liderlik": 2, "Diniy": 1, "Kino": 2, "Mantiq": 1},   # 2-hafta = 9
+    {"IT": 4, "Liderlik": 2, "Diniy": 2, "Kino": 2, "Mantiq": 1},   # 3-hafta = 11
+    {"IT": 5, "Liderlik": 3, "Diniy": 2, "Kino": 2, "Mantiq": 1},   # 4-hafta = 13
+    {"IT": 6, "Liderlik": 3, "Diniy": 2, "Kino": 2, "Mantiq": 2},   # 5-haftadan = 15
+]
+ICONS = {"IT": "💻 IT va dasturlash", "Liderlik": "🌟 Fazilatli liderlik",
+         "Diniy": "🕌 Diniy savodxonlik", "Kino": "🎬 Kino va multfilm",
+         "Mantiq": "🧩 Mantiq va zakovat"}
 
 WEEKDAYS_UZ = ["Dushanba", "Seshanba", "Chorshanba", "Payshanba",
                "Juma", "Shanba", "Yakshanba"]
@@ -54,18 +62,24 @@ def day_index(today=None):
     return max(((today or date.today()) - START_DATE).days, 0)
 
 
+def plan_for(day):
+    return WEEK_PLAN[min(day // 7, len(WEEK_PLAN) - 1)]
+
+
 def today_count(today=None):
-    week = day_index(today) // 7
-    return WEEKLY_COUNTS[min(week, len(WEEKLY_COUNTS) - 1)]
+    return sum(plan_for(day_index(today)).values())
 
 
 def build_text(today):
     day = day_index(today)
-    total = today_count(today)
-    it_count = round(total * IT_SHARE)
-    ld_count = total - it_count
+    plan = plan_for(day)
+    total = sum(plan.values())
 
-    nxt = WEEKLY_COUNTS[min(day // 7 + 1, len(WEEKLY_COUNTS) - 1)]
+    lines = "\n".join(
+        f"{ICONS[t]} — <b>{n} ta</b>" for t, n in plan.items() if n
+    )
+
+    nxt = sum(WEEK_PLAN[min(day // 7 + 1, len(WEEK_PLAN) - 1)].values())
     growth = ""
     if nxt > total:
         growth = (f"\n📈 <i>{7 - (day % 7)} kundan keyin savollar soni "
@@ -77,9 +91,9 @@ def build_text(today):
         f"{WEEKDAYS_UZ[today.weekday()]}</i>\n"
         f"━━━━━━━━━━━━━━━━━━\n\n"
         f"Bugun sizni <b>{total} ta savol</b> kutmoqda:\n\n"
-        f"💻 IT va dasturlash — <b>{it_count} ta</b>\n"
-        f"🌟 Fazilatli liderlik — <b>{ld_count} ta</b>\n\n"
-        f"📱 Savollar Telegram ichida keladi.\n⏱ Taxminan {max(2, round(total / 2))}–{total} daqiqa.\n"
+        f"{lines}\n\n"
+        f"📱 Savollar Telegram ichida keladi.\n"
+        f"⏱ Taxminan {max(2, round(total / 2))}–{total} daqiqa.\n"
         f"📊 Natijangiz darhol ko'rsatiladi.\n"
         f"{growth}\n"
         f"Tugmani bosing va boshlang 👇"
